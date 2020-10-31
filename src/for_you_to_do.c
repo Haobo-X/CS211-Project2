@@ -1,4 +1,5 @@
 #include "../include/for_you_to_do.h"
+#include <math.h>
 
 int get_block_size(){
     //return the block size you'd like to use 
@@ -29,7 +30,49 @@ int get_block_size(){
 int mydgetrf(double *A, int *ipiv, int n) 
 {
     /* add your code here */
+    int i, j, k, max_index, tmp2;
+    double max, tmp1;
+    double * tmp_row = (double *)malloc(sizeof(double) * n);
+    
+    for (i = 0; i < n; i++)
+    {
+        max_index = i;
+        max = fabs(A[i * n + i]);
+        for (j = i + 1; j < n; j++)
+        {
+            tmp1 = fabs(A[j * n + i]);
+            if (max < tmp1)
+            {
+                max_index = j;
+                max = tmp1;
+            }
+        }
 
+        if (max == 0)
+        {
+            return -1;
+        }
+            
+        if (max_index != i)
+        {
+            tmp2 = ipiv[i];
+            ipiv[i] = ipiv[maxIndex];
+            ipiv[maxIndex] = tmp2;
+            memcpy(tmp_row, A + i * n, n * sizeof(double));
+            memcpy(A + i * n, A + max_index * n, n * sizeof(double));
+            memcpy(A + max_index * n, tmp_row, n * sizeof(double));
+        }
+
+        for (j = i + 1; j < n; j++)
+        {
+            A[j * n + i] = A[j * n + i] / A[i * n + i];
+            for (k = i + 1; k < n; k++)
+            {
+                A[j * n + k] -= A[j * n + i] * A[i * n + k];
+            }
+        }
+    }
+    free(tmp_row);
     return 0;
 }
 
@@ -63,7 +106,40 @@ int mydgetrf(double *A, int *ipiv, int n)
 void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv)
 {
     /* add your code here */
-    return;
+    int i, j;
+    double sum = 0;
+    double * new_B = (double *)malloc(sizeof(double) * n);
+    
+    if (UPLO == 'L')
+    {
+        for (i = 0; i < n; i++)
+        {
+            tmp_B[i] = B[ipiv[i]];
+        }
+        
+        for (i = 0; i < n; i++)
+        {
+            sum = tmp_B[i];
+            for (j = 0; j < i; j++)
+            {
+                sum -= B[j] * A[i * n + j];
+            }
+            B[i] = sum;
+        }
+    }
+    else if (UPLO == 'U')
+    {
+        for (i = n - 1; i >= 0; i--)
+        {
+            sum = 0;
+            for (j = i + 1; j < n; j++)
+            {
+                sum += B[j] * A[i * n + j];
+            }
+            B[i] = (B[i] - sum) / A[i * n + i];
+        }
+    }
+    free(tmp_B);
 }
 
 /**
