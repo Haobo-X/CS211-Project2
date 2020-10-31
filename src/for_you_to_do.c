@@ -115,6 +115,18 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv)
     
     if (UPLO == 'L')
     {
+        y[0] = B[ipiv[0]];
+        for (i = 1; i < n; i++)
+        {
+            sum = 0;
+            for (j = 0; j < i; j++)
+            {
+                sum += y[j] * A[i * n + j];
+            }
+            y[i] = B[ipiv[i]] - sum;
+        }    
+        
+    /*
         for (i = 0; i < n; i++)
         {
             tmp_B[i] = B[ipiv[i]];
@@ -129,6 +141,7 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv)
             }
             B[i] = sum;
         }
+    */
     }
     else if (UPLO == 'U')
     {
