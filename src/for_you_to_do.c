@@ -56,8 +56,8 @@ int mydgetrf(double *A, int *ipiv, int n)
         if (max_index != i)
         {
             tmp2 = ipiv[i];
-            ipiv[i] = ipiv[maxIndex];
-            ipiv[maxIndex] = tmp2;
+            ipiv[i] = ipiv[max_index];
+            ipiv[max_index] = tmp2;
             memcpy(tmp_row, A + i * n, n * sizeof(double));
             memcpy(A + i * n, A + max_index * n, n * sizeof(double));
             memcpy(A + max_index * n, tmp_row, n * sizeof(double));
