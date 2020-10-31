@@ -32,6 +32,7 @@ int mydgetrf(double *A, int *ipiv, int n)
     /* add your code here */
     int i, j, k, max_index, tmp2;
     double max, tmp1;
+    // used for swap rows
     double * tmp_row = (double *)malloc(sizeof(double) * n);
     
     for (i = 0; i < n; i++)
@@ -47,7 +48,8 @@ int mydgetrf(double *A, int *ipiv, int n)
                 max = tmp1;
             }
         }
-
+        
+        // if the matrix A is singular
         if (max == 0)
         {
             return -1;
@@ -58,6 +60,7 @@ int mydgetrf(double *A, int *ipiv, int n)
             tmp2 = ipiv[i];
             ipiv[i] = ipiv[max_index];
             ipiv[max_index] = tmp2;
+            // swap rows for A
             memcpy(tmp_row, A + i * n, n * sizeof(double));
             memcpy(A + i * n, A + max_index * n, n * sizeof(double));
             memcpy(A + max_index * n, tmp_row, n * sizeof(double));
