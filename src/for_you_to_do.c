@@ -153,35 +153,35 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv)
  **/
 void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
 {
-    int i, j, k, i1, j1, k1;
-    for (i = 0; i < n; i += b)
+    int i1, j1, k1, i2, j2, k2;
+    for (i1 = 0; i1 < n; i1 += b)
     {
-        for (j = 0; j < n; j += b)
+        for (j1 = 0; j1 < j; j1 += b)
         {
-            for (k = 0; k < n; k += b)
+            for (k1 = 0; k1 < i; k1 += b)
             {
-                for (i1 = i; i1 < (i + b > n? n : (i + b)); i1 += 3)
+                for (i2 = i1; i2 < (i1 + b > n? n : (i1 + b)); i2 += 3)
                 {
-                    for (j1 = j; j1 < (j + b > n? n : (j + b)); j1 += 3)
+                    for (j2 = j1; j2 < (j1 + b > j? j : (j1 + b)); j2 += 3)
                     {
-                        register double C_0_0 = C[i1 * n + j1];
-                        register double C_0_1 = C[i1 * n + (j1 + 1)];
-                        register double C_0_2 = C[i1 * n + (j1 + 2)];
-                        register double C_1_0 = C[(i1 + 1) * n + j1];
-                        register double C_1_1 = C[(i1 + 1) * n + (j1 + 1)];
-                        register double C_1_2 = C[(i1 + 1) * n + (j1 + 2)];
-                        register double C_2_0 = C[(i1 + 2) * n + j1];                
-                        register double C_2_1 = C[(i1 + 2) * n + (j1 + 1)];
-                        register double C_2_2 = C[(i1 + 2) * n + (j1 + 2)];
+                        register double C_0_0 = C[i2 * k + j2];
+                        register double C_0_1 = C[i2 * k + (j2 + 1)];
+                        register double C_0_2 = C[i2 * k + (j2 + 2)];
+                        register double C_1_0 = C[(i2 + 1) * k + j2];
+                        register double C_1_1 = C[(i2 + 1) * k + (j2 + 1)];
+                        register double C_1_2 = C[(i2 + 1) * k + (j2 + 2)];
+                        register double C_2_0 = C[(i2 + 2) * k + j2];                
+                        register double C_2_1 = C[(i2 + 2) * k + (j2 + 1)];
+                        register double C_2_2 = C[(i2 + 2) * k + (j2 + 2)];
 
-                        for (k1 = k; k1 < (k + b > n? n : (k + b)); k1++)
+                        for (k2 = k1; k2 < (k1 + b > i? i : (k1 + b)); k2++)
                         {
-                            register double A_0 = A[i1 * n + k1];
-                            register double A_1 = A[(i1 + 1) * n + k1];
-                            register double A_2 = A[(i1 + 2) * n + k1];
-                            register double B_0 = B[k1 * n + j1];
-                            register double B_1 = B[k1 * n + (j1 + 1)];
-                            register double B_2 = B[k1 * n + (j1 + 2)];
+                            register double A_0 = A[i2 * k + k2];
+                            register double A_1 = A[(i2 + 1) * k + k2];
+                            register double A_2 = A[(i2 + 2) * k + k2];
+                            register double B_0 = B[k2 * k + j2];
+                            register double B_1 = B[k2 * k + (j2 + 1)];
+                            register double B_2 = B[k2 * k + (j2 + 2)];
                             
                             C_0_0 += A_0 * B_0;
                             C_0_1 += A_0 * B_1;
@@ -194,15 +194,15 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
                             C_2_2 += A_2 * B_2;
                         }
                         
-                        C[i1 * n + j1] = C_0_0;
-                        C[i1 * n + (j1 + 1)] = C_0_1;
-                        C[i1 * n + (j1 + 2)] = C_0_2;
-                        C[(i1 + 1) * n + j1] = C_1_0;
-                        C[(i1 + 1) * n + (j1 + 1)] = C_1_1;
-                        C[(i1 + 1) * n + (j1 + 2)] = C_1_2;
-                        C[(i1 + 2) * n + j1] = C_2_0;
-                        C[(i1 + 2) * n + (j1 + 1)] = C_2_1;
-                        C[(i1 + 2) * n + (j1 + 2)] = C_2_2;
+                        C[i2 * k + j2] = C_0_0;
+                        C[i2 * k + (j2 + 1)] = C_0_1;
+                        C[i2 * k + (j2 + 2)] = C_0_2;
+                        C[(i2 + 1) * k + j2] = C_1_0;
+                        C[(i2 + 1) * k + (j2 + 1)] = C_1_1;
+                        C[(i2 + 1) * k + (j2 + 2)] = C_1_2;
+                        C[(i2 + 2) * k + j2] = C_2_0;
+                        C[(i2 + 2) * k + (j2 + 1)] = C_2_1;
+                        C[(i2 + 2) * k + (j2 + 2)] = C_2_2;
                     }
                 }
             }
