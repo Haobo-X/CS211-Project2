@@ -60,7 +60,7 @@ int mydgetrf(double *A, int *ipiv, int n)
             tmp2 = ipiv[i];
             ipiv[i] = ipiv[max_index];
             ipiv[max_index] = tmp2;
-            // swap rows for A
+            // swap rows
             memcpy(tmp_row, A + i * n, n * sizeof(double));
             memcpy(A + i * n, A + max_index * n, n * sizeof(double));
             memcpy(A + max_index * n, tmp_row, n * sizeof(double));
