@@ -108,7 +108,7 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv)
     /* add your code here */
     int i, j;
     double sum = 0;
-    double * new_B = (double *)malloc(sizeof(double) * n);
+    double * tmp_B = (double *)malloc(sizeof(double) * n);
     
     if (UPLO == 'L')
     {
