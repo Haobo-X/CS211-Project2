@@ -153,6 +153,7 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv)
  **/
 void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
 {
+/*
     int i1, j1, k1, i2, j2, k2;
     for (i1 = 0; i1 < n; i1 += b)
     {
@@ -208,6 +209,68 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
             }
         }
     }
+*/
+    
+    int i1 = i, j1 = j, k1 = k;
+    int ni = i + b > n ? n : i + b;
+    int nj = j + b > n ? n : j + b;
+    int nk = k + b > n ? n : k + b;
+
+    for (i1 = i; i1 < ni; i1 += 3)
+    {
+        for (j1 = j; j1 < nj; j1 += 3)
+        {
+            int t = i1 * n + j1;
+            int tt = t + n;
+            int ttt = tt + n;
+            register double c00 = C[t];
+            register double c01 = C[t + 1];
+            register double c02 = C[t + 2];
+            register double c10 = C[tt];
+            register double c11 = C[tt + 1];
+            register double c12 = C[tt + 2];
+            register double c20 = C[ttt];
+            register double c21 = C[ttt + 1];
+            register double c22 = C[ttt + 2];
+
+            for (k1 = k; k1 < nk; k1 += 3)
+            {
+		int l;
+                for (l = 0; l < 3; l++)
+                {
+                    int ta = i1 * n + k1 + l;
+                    int tta = ta + n;
+                    int ttta = tta + n;
+                    int tb = k1 * n + j1 + l * n;
+                    register double a0 = A[ta];
+                    register double a1 = A[tta];
+                    register double a2 = A[ttta];
+                    register double b0 = B[tb];
+                    register double b1 = B[tb + 1];
+                    register double b2 = B[tb + 2];
+
+                    c00 -= a0 * b0;
+                    c01 -= a0 * b1;
+                    c02 -= a0 * b2;
+                    c10 -= a1 * b0;
+                    c11 -= a1 * b1;
+                    c12 -= a1 * b2;
+                    c20 -= a2 * b0;
+                    c21 -= a2 * b1;
+                    c22 -= a2 * b2;
+                }
+            }
+            C[t] = c00;
+            C[t + 1] = c01;
+            C[t + 2] = c02;
+            C[tt] = c10;
+            C[tt + 1] = c11;
+            C[tt + 2] = c12;
+            C[ttt] = c20;
+            C[ttt + 1] = c21;
+            C[ttt + 2] = c22;
+        }
+    }
     return;
 }
 
@@ -243,7 +306,7 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
 {
     int ib, i, j, k, maxIndex;
     double max, sum;
-    double *temprow = (double*) malloc(sizeof(double) * n);
+    double *temprow = (double *) malloc(sizeof(double) * n);
 
     for (ib = 0; ib < n; ib += b)
     {
@@ -265,7 +328,6 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
             // if the matrix is singular
             if (max == 0)
             {
-                perror("LU factorization failed: coefficient matrix is singular.\n");
                 return -1;
             }
             else
@@ -287,6 +349,7 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
             for (j = i + 1; j < n; j++)
             {
                 A[j * n + i] = A[j * n + i] / A[i * n + i];
+                
                 for (k = i + 1; k < ib + b && k < n; k++)
                 {
                     A[j * n + k] -= A[j * n + i] * A[i * n + k];
