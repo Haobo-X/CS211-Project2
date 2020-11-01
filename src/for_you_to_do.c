@@ -49,7 +49,7 @@ int mydgetrf(double *A, int *ipiv, int n)
             }
         }
         
-        // if the matrix A is singular
+        // if the matrix is singular
         if (max == 0)
         {
             return -1;
@@ -241,6 +241,81 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
  **/
 int mydgetrf_block(double *A, int *ipiv, int n, int b) 
 {
+    int ib, i, j, k, maxIndex;
+    double max, sum;
+    double *temprow = (double*) malloc(sizeof(double) * n);
+
+    for (ib = 0; ib < n; ib += b)
+    {
+        for (i = ib; i < ib + b && i < n; i++)
+        {
+            // pivoting
+            maxIndex = i;
+            max = fabs(A[i * n + i]);
+            
+            for (j = i + 1; j < n; j++)
+            {
+                if (fabs(A[j * n + i]) > max)
+                {
+                    maxIndex = j;
+                    max = fabs(A[j * n + i]);
+                }
+            }
+            
+            // if the matrix is singular
+            if (max == 0)
+            {
+                return -1;
+            }
+            else
+            {
+                if (maxIndex != i)
+                {
+                    // save pivoting information
+                    int temp = ipiv[i];
+                    ipiv[i] = ipiv[maxIndex];
+                    ipiv[maxIndex] = temp;
+                    // swap rows
+                    memcpy(temprow, A + i * n, n * sizeof(double));
+                    memcpy(A + i * n, A + maxIndex * n, n * sizeof(double));
+                    memcpy(A + maxIndex * n, temprow, n * sizeof(double));
+                }
+            }
+
+            // factorization
+            for (j = i + 1; j < n; j++)
+            {
+                A[j * n + i] = A[j * n + i] / A[i * n + i];
+                for (k = i + 1; k < ib + b && k < n; k++)
+                {
+                    A[j * n + k] -= A[j * n + i] * A[i * n + k];
+                }
+            }
+        }
+
+        // update A(ib:end, end+1:n)
+        for (i = ib; i < ib + b && i < n; i++)
+        {
+            for (j = ib + b; j < n; j++)
+            {
+                sum = 0;
+                for (k = ib; k < i; k++)
+                {
+                    sum += A[i * n + k] * A[k * n + j];
+                }
+                A[i * n + j] -= sum;
+            }
+        }
+
+        // update A(end+1:n, end+1:n)
+        for (i = ib + b; i < n; i += b)
+        {
+            for (j = ib + b; j < n; j += b)
+            {
+                mydgemm(A, A, A, n, i, j, ib, b);
+            }
+        }
+    }
     return 0;
 }
 
