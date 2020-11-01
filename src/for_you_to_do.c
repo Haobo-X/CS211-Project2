@@ -30,7 +30,7 @@ int get_block_size(){
 int mydgetrf(double *A, int *ipiv, int n) 
 {
     /* add your code here */
-    int i, j, k, max_index, tmp2;
+    int i, j, k, max_index, in, maxn, tmp2;
     int size_n = sizeof(double) * n;
     double max, tmp1;
     // used for swapping rows
@@ -56,19 +56,20 @@ int mydgetrf(double *A, int *ipiv, int n)
 	    perror("LU factorization failed: coefficient matrix is singular.\n");
             return -1;
         }
-            
+        
+	in = i * n; 
+	maxn = max_index * n;    
         if (max_index != i)
         {
             tmp2 = ipiv[i];
             ipiv[i] = ipiv[max_index];
             ipiv[max_index] = tmp2;
             // swap rows of A
-            memcpy(tmp_row, A + i * n, size_n);
-            memcpy(A + i * n, A + max_index * n, size_n);
-            memcpy(A + max_index * n, tmp_row, size_n);
+            memcpy(tmp_row, A + in, size_n);
+            memcpy(A + in, A + maxn, size_n);
+            memcpy(A + maxn, tmp_row, size_n);
         }
-
-	int in = i * n;    
+    
         for (j = i + 1; j < n; j++)
         {
             A[j * n + i] = A[j * n + i] / A[in + i];
@@ -238,7 +239,7 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
             register double C_2_1 = C[in3 + j2];
             register double C_2_2 = C[in3 + j3];
 
-
+/*
             for (k1 = k; k1 < n3; k1 += 3)
             {
 		int l;
@@ -266,9 +267,9 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
                     C_2_2 -= A_2 * B_2;
                 }
             }
-
-/*		
-	    for (k = 0; k < n; k++)
+*/	    
+		
+	    for (k1 = k; k1 < n3; k++)
             {
 		kn = k1 * n + j1;    
                 register double A_0 = A[in1 + k1];
@@ -288,7 +289,7 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
                 C_2_1 += A_2 * B_1;
                 C_2_2 += A_2 * B_2;
             }
-*/
+
             C[in1 + j1] = C_0_0;
             C[in1 + j2] = C_0_1;
             C[in1 + j3] = C_0_2;
@@ -333,9 +334,10 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
  **/
 int mydgetrf_block(double *A, int *ipiv, int n, int b) 
 {
-    int ib, ib2, i, n1, j, k, maxIndex;
+    int ib, ib2, i, n1, j, k, max_index;
+    int size_n = sizeof(double) * n;
     double max, sum;
-    double *temprow = (double *) malloc(sizeof(double) * n);
+    double *temprow = (double *) malloc(size_n);
 
     for (ib = 0; ib < n; ib += b)
     {
@@ -344,14 +346,14 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
         for (i = ib; i < n1; i++)
         {
             // pivoting
-            maxIndex = i;
+            max_index = i;
             max = fabs(A[i * n + i]);
             
             for (j = i + 1; j < n; j++)
             {
                 if (fabs(A[j * n + i]) > max)
                 {
-                    maxIndex = j;
+                    max_index = j;
                     max = fabs(A[j * n + i]);
                 }
             }
@@ -364,16 +366,16 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
             }
             else
             {
-                if (maxIndex != i)
+                if (max_index != i)
                 {
                     // save pivoting information
                     int temp = ipiv[i];
-                    ipiv[i] = ipiv[maxIndex];
-                    ipiv[maxIndex] = temp;
+                    ipiv[i] = ipiv[max_index];
+                    ipiv[max_index] = temp;
                     // swap rows
-                    memcpy(temprow, A + i * n, n * sizeof(double));
-                    memcpy(A + i * n, A + maxIndex * n, n * sizeof(double));
-                    memcpy(A + maxIndex * n, temprow, n * sizeof(double));
+                    memcpy(temprow, A + i * n, size_n);
+                    memcpy(A + i * n, A + max_index * n, size_n);
+                    memcpy(A + max_index * n, temprow, size_n);
                 }
             }
 
