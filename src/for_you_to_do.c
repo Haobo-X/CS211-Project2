@@ -267,7 +267,7 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
                 }
             }
 	    
-/*		
+		
 	    for (k1 = k; k1 < n3; k1++)
             {
 		kn = k1 * n + j1;    
@@ -288,7 +288,8 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
                 C_2_1 -= A_2 * B_1;
                 C_2_2 -= A_2 * B_2;
             }
-*/	
+	
+/*		
             for (k1 = 0; k1 < b; k1++)
             {
                 register int j00 = i1 * k + k1;
@@ -313,7 +314,7 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
                 C_1_2 -= A_1_M * B_M;
                 C_2_2 -= A_2_M * B_M;
             }	
-		
+*/		
             C[in1 + j1] = C_0_0;
             C[in1 + j2] = C_0_1;
             C[in1 + j3] = C_0_2;
