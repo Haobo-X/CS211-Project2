@@ -265,6 +265,7 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
             // if the matrix is singular
             if (max == 0)
             {
+                perror("LU factorization failed: coefficient matrix is singular.\n");
                 return -1;
             }
             else
