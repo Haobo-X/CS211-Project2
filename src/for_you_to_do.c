@@ -246,16 +246,14 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
 		int l;
                 for (l = 0; l < 3; l++)
                 {
-                    int ta = i1 * n + k1 + l;
-                    int tta = ta + n;
-                    int ttta = tta + n;
-                    int tb = k1 * n + j1 + l * n;
-                    register double A_0 = A[ta];
-                    register double A_1 = A[tta];
-                    register double A_2 = A[ttta];
-                    register double B_0 = B[tb];
-                    register double B_1 = B[tb + 1];
-                    register double B_2 = B[tb + 2];
+                    k2 = k1 + l;
+                    int k3 = k1 * n + j1 + l * n;
+                    register double A_0 = A[in1 + k2];
+                    register double A_1 = A[in2 + k2];
+                    register double A_2 = A[in3 + k2];
+                    register double B_0 = B[k3];
+                    register double B_1 = B[k3 + 1];
+                    register double B_2 = B[k3 + 2];
 
                     C_0_0 -= A_0 * B_0;
                     C_0_1 -= A_0 * B_1;
