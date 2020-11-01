@@ -30,7 +30,7 @@ int get_block_size(){
 int mydgetrf(double *A, int *ipiv, int n) 
 {
     /* add your code here */
-    int i, j, k, max_index, in, maxn, tmp2;
+    int i, j, k, max_index, in, maxn, tmp2, jn;
     int size_n = sizeof(double) * n;
     double max, tmp1;
     // used for swapping rows
@@ -39,7 +39,8 @@ int mydgetrf(double *A, int *ipiv, int n)
     for (i = 0; i < n; i++)
     {
         max_index = i;
-        max = fabs(A[i * n + i]);
+	in = i * n; 
+        max = fabs(A[in + i]);
         for (j = i + 1; j < n; j++)
         {
             tmp1 = fabs(A[j * n + i]);
@@ -57,7 +58,6 @@ int mydgetrf(double *A, int *ipiv, int n)
             return -1;
         }
         
-	in = i * n; 
 	maxn = max_index * n;    
         if (max_index != i)
         {
@@ -72,10 +72,11 @@ int mydgetrf(double *A, int *ipiv, int n)
     
         for (j = i + 1; j < n; j++)
         {
-            A[j * n + i] = A[j * n + i] / A[in + i];
+	    jn = j * n;	
+            A[jn + i] = A[jn + i] / A[in + i];
             for (k = i + 1; k < n; k++)
             {
-                A[j * n + k] -= A[j * n + i] * A[in + k];
+                A[jn + k] -= A[jn + i] * A[in + k];
             }
         }
     }
@@ -347,7 +348,8 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
         {
             // pivoting
             max_index = i;
-            max = fabs(A[i * n + i]);
+	    in = i * n;
+            max = fabs(A[in + i]);
             
             for (j = i + 1; j < n; j++)
             {
@@ -366,7 +368,6 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
             }
             else
             {
-		in = i * n;
 		maxn = max_index * n;    
                 if (max_index != i)
                 {
