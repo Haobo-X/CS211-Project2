@@ -57,13 +57,13 @@ int mydgetrf(double *A, int *ipiv, int n)
 	    perror("LU factorization failed: coefficient matrix is singular.\n");
             return -1;
         }
-        
-	maxn = max_index * n;    
+           
         if (max_index != i)
-        {
+        {	
             tmp2 = ipiv[i];
             ipiv[i] = ipiv[max_index];
             ipiv[max_index] = tmp2;
+	    maxn = max_index * n; 	
             // swap rows of A
             memcpy(tmp_row, A + in, size_n);
             memcpy(A + in, A + maxn, size_n);
@@ -335,9 +335,9 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
  **/
 int mydgetrf_block(double *A, int *ipiv, int n, int b) 
 {
-    int ib, ib2, i, n1, j, k, max_index, in, maxn, jn;
+    int ib, ib2, i, n1, j, k, max_index, in, maxn, tmp2, jn;
     int size_n = sizeof(double) * n;
-    double max, sum;
+    double max, tmp1, sum;
     double *temprow = (double *) malloc(size_n);
 
     for (ib = 0; ib < n; ib += b)
@@ -353,10 +353,11 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
             
             for (j = i + 1; j < n; j++)
             {
-                if (fabs(A[j * n + i]) > max)
+		tmp1 = fabs(A[j * n + i]);    
+                if (tmp1 > max)
                 {
                     max_index = j;
-                    max = fabs(A[j * n + i]);
+                    max = tmp1;
                 }
             }
             
@@ -367,14 +368,14 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
                 return -1;
             }
             else
-            {
-		maxn = max_index * n;    
+            {    
                 if (max_index != i)
                 {
                     // save pivoting information
-                    int temp = ipiv[i];
+                    tmp2 = ipiv[i];
                     ipiv[i] = ipiv[max_index];
-                    ipiv[max_index] = temp;
+                    ipiv[max_index] = tmp2;
+		    maxn = max_index * n;    	
                     // swap rows
                     memcpy(temprow, A + in, size_n);
                     memcpy(A + in, A + maxn, size_n);
