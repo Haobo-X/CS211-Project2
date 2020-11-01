@@ -31,9 +31,10 @@ int mydgetrf(double *A, int *ipiv, int n)
 {
     /* add your code here */
     int i, j, k, max_index, tmp2;
+    int size_n = sizeof(double) * n;
     double max, tmp1;
     // used for swapping rows
-    register double * tmp_row = (double *)malloc(sizeof(double) * n);
+    register double * tmp_row = (double *)malloc(size_n);
     
     for (i = 0; i < n; i++)
     {
@@ -52,6 +53,7 @@ int mydgetrf(double *A, int *ipiv, int n)
         // if the matrix is singular
         if (max == 0)
         {
+	    perror("LU factorization failed: coefficient matrix is singular.\n");
             return -1;
         }
             
@@ -61,17 +63,18 @@ int mydgetrf(double *A, int *ipiv, int n)
             ipiv[i] = ipiv[max_index];
             ipiv[max_index] = tmp2;
             // swap rows of A
-            memcpy(tmp_row, A + i * n, n * sizeof(double));
-            memcpy(A + i * n, A + max_index * n, n * sizeof(double));
-            memcpy(A + max_index * n, tmp_row, n * sizeof(double));
+            memcpy(tmp_row, A + i * n, size_n);
+            memcpy(A + i * n, A + max_index * n, size_n);
+            memcpy(A + max_index * n, tmp_row, size_n);
         }
 
+	int in = i * n;    
         for (j = i + 1; j < n; j++)
         {
-            A[j * n + i] = A[j * n + i] / A[i * n + i];
+            A[j * n + i] = A[j * n + i] / A[in + i];
             for (k = i + 1; k < n; k++)
             {
-                A[j * n + k] -= A[j * n + i] * A[i * n + k];
+                A[j * n + k] -= A[j * n + i] * A[in + k];
             }
         }
     }
@@ -212,28 +215,26 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
 */
     
     int i1 = i, j1 = j, k1 = k;
-    int ni = i + b > n ? n : i + b;
-    int nj = j + b > n ? n : j + b;
-    int nk = k + b > n ? n : k + b;
+    int n1 = i + b > n ? n : i + b;
+    int n2 = j + b > n ? n : j + b;
+    int n3 = k + b > n ? n : k + b;
 
-    for (i1 = i; i1 < ni; i1 += 3)
+    for (i1 = i; i1 < n1; i1 += 3)
     {
-        for (j1 = j; j1 < nj; j1 += 3)
+        for (j1 = j; j1 < n2; j1 += 3)
         {
-            int t = i1 * n + j1;
-            int tt = t + n;
-            int ttt = tt + n;
-            register double c00 = C[t];
-            register double c01 = C[t + 1];
-            register double c02 = C[t + 2];
-            register double c10 = C[tt];
-            register double c11 = C[tt + 1];
-            register double c12 = C[tt + 2];
-            register double c20 = C[ttt];
-            register double c21 = C[ttt + 1];
-            register double c22 = C[ttt + 2];
+            register double C_0_0 = C[i1 * n + j1];
+            register double C_0_1 = C[i1 * n + (j1 + 1)];
+            register double C_0_2 = C[i1 * n + (j1 + 2)];
+            register double C_1_0 = C[(i1 + 1) * n + j1];
+            register double C_1_1 = C[(i1 + 1) * n + (j1 + 1)];
+            register double C_1_2 = C[(i1 + 1) * n + (j1 + 2)];
+            register double C_2_0 = C[(i1 + 2) * n + j1];
+            register double C_2_1 = C[(i1 + 2) * n + (j1 + 1)];
+            register double C_2_2 = C[(i1 + 2) * n + (j1 + 2)];
 
-            for (k1 = k; k1 < nk; k1 += 3)
+/*
+            for (k1 = k; k1 < n3; k1 += 3)
             {
 		int l;
                 for (l = 0; l < 3; l++)
@@ -242,12 +243,12 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
                     int tta = ta + n;
                     int ttta = tta + n;
                     int tb = k1 * n + j1 + l * n;
-                    register double a0 = A[ta];
-                    register double a1 = A[tta];
-                    register double a2 = A[ttta];
-                    register double b0 = B[tb];
-                    register double b1 = B[tb + 1];
-                    register double b2 = B[tb + 2];
+                    register double A_0 = A[ta];
+                    register double A_1 = A[tta];
+                    register double A_2 = A[ttta];
+                    register double B_0 = B[tb];
+                    register double B_1 = B[tb + 1];
+                    register double B_2 = B[tb + 2];
 
                     c00 -= a0 * b0;
                     c01 -= a0 * b1;
@@ -260,15 +261,36 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
                     c22 -= a2 * b2;
                 }
             }
-            C[t] = c00;
-            C[t + 1] = c01;
-            C[t + 2] = c02;
-            C[tt] = c10;
-            C[tt + 1] = c11;
-            C[tt + 2] = c12;
-            C[ttt] = c20;
-            C[ttt + 1] = c21;
-            C[ttt + 2] = c22;
+*/
+	    for (k = 0; k < n; k++)
+            {
+                register double A_0 = A[i1 * n + k1];
+                register double A_1 = A[(i1 + 1) * n + k1];
+                register double A_2 = A[(i1 + 2) * n + k1];
+                register double B_0 = B[k1 * n + j1];
+                register double B_1 = B[k1 * n + (j1 + 1)];
+                register double B_2 = B[k1 * n + (j1 + 2)];
+
+                C_0_0 += A_0 * B_0;
+                C_0_1 += A_0 * B_1;
+                C_0_2 += A_0 * B_2;
+                C_1_0 += A_1 * B_0;
+                C_1_1 += A_1 * B_1;
+                C_1_2 += A_1 * B_2;
+                C_2_0 += A_2 * B_0;
+                C_2_1 += A_2 * B_1;
+                C_2_2 += A_2 * B_2;
+            }
+
+            C[i1 * n + j1] = C_0_0;
+            C[i1 * n + (j1 + 1)] = C_0_1;
+            C[i1 * n + (j1 + 2)] = C_0_2;
+            C[(i1 + 1) * n + j1] = C_1_0;
+            C[(i1 + 1) * n + (j1 + 1)] = C_1_1;
+            C[(i1 + 1) * n + (j1 + 2)] = C_1_2;    
+            C[(i1 + 2) * n + j1] = C_2_0;
+            C[(i1 + 2) * n + (j1 + 1)] = C_2_1;
+            C[(i1 + 2) * n + (j1 + 2)] = C_2_2;
         }
     }
     return;
@@ -328,6 +350,7 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
             // if the matrix is singular
             if (max == 0)
             {
+		perror("LU factorization failed: coefficient matrix is singular.\n");
                 return -1;
             }
             else
