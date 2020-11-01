@@ -4,7 +4,7 @@
 int get_block_size(){
     //return the block size you'd like to use 
     /*add your code here */
-    return 126;
+    return 128;
   
 }
 
@@ -334,7 +334,7 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
  **/
 int mydgetrf_block(double *A, int *ipiv, int n, int b) 
 {
-    int ib, ib2, i, n1, j, k, max_index;
+    int ib, ib2, i, n1, j, k, max_index, in, maxn, jn;
     int size_n = sizeof(double) * n;
     double max, sum;
     double *temprow = (double *) malloc(size_n);
@@ -366,6 +366,8 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
             }
             else
             {
+		in = i * n;
+		maxn = max_index * n;    
                 if (max_index != i)
                 {
                     // save pivoting information
@@ -373,20 +375,21 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
                     ipiv[i] = ipiv[max_index];
                     ipiv[max_index] = temp;
                     // swap rows
-                    memcpy(temprow, A + i * n, size_n);
-                    memcpy(A + i * n, A + max_index * n, size_n);
-                    memcpy(A + max_index * n, temprow, size_n);
+                    memcpy(temprow, A + in, size_n);
+                    memcpy(A + in, A + maxn, size_n);
+                    memcpy(A + maxn, temprow, size_n);
                 }
             }
 
             // factorization
             for (j = i + 1; j < n; j++)
             {
-                A[j * n + i] = A[j * n + i] / A[i * n + i];
+		jn = j * n;    
+                A[jn + i] = A[jn + i] / A[in + i];
                   
                 for (k = i + 1; k < n1; k++)
                 {
-                    A[j * n + k] -= A[j * n + i] * A[i * n + k];
+                    A[jn + k] -= A[jn + i] * A[in + k];
                 }
             }
         }
@@ -394,14 +397,15 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
         // update A(ib:end, end+1:n)
         for (i = ib; i < n1; i++)
         {
+	    in = i * n;	
             for (j = ib2; j < n; j++)
             {
                 sum = 0;
                 for (k = ib; k < i; k++)
                 {
-                    sum += A[i * n + k] * A[k * n + j];
+                    sum += A[in + k] * A[k * n + j];
                 }
-                A[i * n + j] -= sum;
+                A[in + j] -= sum;
             }
         }
 
