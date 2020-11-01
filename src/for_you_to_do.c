@@ -33,7 +33,7 @@ int mydgetrf(double *A, int *ipiv, int n)
     int i, j, k, max_index, tmp2;
     double max, tmp1;
     // used for swapping rows
-    double * tmp_row = (double *)malloc(sizeof(double) * n);
+    register double * tmp_row = (double *)malloc(sizeof(double) * n);
     
     for (i = 0; i < n; i++)
     {
@@ -110,8 +110,8 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv)
 {
     /* add your code here */
     int i, j;
-    double sum = 0;
-    double * tmp_B = (double *)malloc(sizeof(double) * n);
+    register double sum = 0;
+    register double * tmp_B = (double *)malloc(sizeof(double) * n);
     
     if (UPLO == 'L')
     {
