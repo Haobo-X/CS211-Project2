@@ -246,7 +246,7 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
 		int l;
                 for (l = 0; l < 3; l++)
                 {
-                    k2 = k1 + l;
+                    int k2 = k1 + l;
                     int k3 = k1 * n + j1 + l * n;
                     register double A_0 = A[in1 + k2];
                     register double A_1 = A[in2 + k2];
