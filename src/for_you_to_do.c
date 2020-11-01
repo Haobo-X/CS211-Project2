@@ -214,7 +214,7 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
     }
 */
     
-    int i1 = i, j1 = j, k1 = k;
+    int i1, j1, k1, in1, in2, in3, j2, j3, kn;
     int n1 = i + b > n ? n : i + b;
     int n2 = j + b > n ? n : j + b;
     int n3 = k + b > n ? n : k + b;
@@ -223,17 +223,22 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
     {
         for (j1 = j; j1 < n2; j1 += 3)
         {
-            register double C_0_0 = C[i1 * n + j1];
-            register double C_0_1 = C[i1 * n + (j1 + 1)];
-            register double C_0_2 = C[i1 * n + (j1 + 2)];
-            register double C_1_0 = C[(i1 + 1) * n + j1];
-            register double C_1_1 = C[(i1 + 1) * n + (j1 + 1)];
-            register double C_1_2 = C[(i1 + 1) * n + (j1 + 2)];
-            register double C_2_0 = C[(i1 + 2) * n + j1];
-            register double C_2_1 = C[(i1 + 2) * n + (j1 + 1)];
-            register double C_2_2 = C[(i1 + 2) * n + (j1 + 2)];
+	    in1 = i1 * n;
+	    in2 = (i1 + 1) * n;
+	    in3 = (i1 + 2) * n;
+	    j2 = j1 + 1;
+	    j3 = j1 + 2;	
+            register double C_0_0 = C[in1 + j1];
+            register double C_0_1 = C[in1 + j2];
+            register double C_0_2 = C[in1 + j3];
+            register double C_1_0 = C[in2 + j1];
+            register double C_1_1 = C[in2 + j2];
+            register double C_1_2 = C[in2 + j3];
+            register double C_2_0 = C[in3 + j1];
+            register double C_2_1 = C[in3 + j2];
+            register double C_2_2 = C[in3 + j3];
 
-/*
+
             for (k1 = k; k1 < n3; k1 += 3)
             {
 		int l;
@@ -250,26 +255,28 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
                     register double B_1 = B[tb + 1];
                     register double B_2 = B[tb + 2];
 
-                    c00 -= a0 * b0;
-                    c01 -= a0 * b1;
-                    c02 -= a0 * b2;
-                    c10 -= a1 * b0;
-                    c11 -= a1 * b1;
-                    c12 -= a1 * b2;
-                    c20 -= a2 * b0;
-                    c21 -= a2 * b1;
-                    c22 -= a2 * b2;
+                    C_0_0 -= A_0 * B_0;
+                    C_0_1 -= A_0 * B_1;
+                    C_0_2 -= A_0 * B_2;
+                    C_1_0 -= A_1 * B_0;
+                    C_1_1 -= A_1 * B_1;
+                    C_1_2 -= A_1 * B_2;
+                    C_2_0 -= A_2 * B_0;
+                    C_2_1 -= A_2 * B_1;
+                    C_2_2 -= A_2 * B_2;
                 }
             }
-*/
+
+/*		
 	    for (k = 0; k < n; k++)
             {
-                register double A_0 = A[i1 * n + k1];
-                register double A_1 = A[(i1 + 1) * n + k1];
-                register double A_2 = A[(i1 + 2) * n + k1];
-                register double B_0 = B[k1 * n + j1];
-                register double B_1 = B[k1 * n + (j1 + 1)];
-                register double B_2 = B[k1 * n + (j1 + 2)];
+		kn = k1 * n + j1;    
+                register double A_0 = A[in1 + k1];
+                register double A_1 = A[in2 + k1];
+                register double A_2 = A[in3 + k1];
+                register double B_0 = B[kn];
+                register double B_1 = B[kn + 1];
+                register double B_2 = B[kn + 2];
 
                 C_0_0 += A_0 * B_0;
                 C_0_1 += A_0 * B_1;
@@ -281,16 +288,16 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
                 C_2_1 += A_2 * B_1;
                 C_2_2 += A_2 * B_2;
             }
-
-            C[i1 * n + j1] = C_0_0;
-            C[i1 * n + (j1 + 1)] = C_0_1;
-            C[i1 * n + (j1 + 2)] = C_0_2;
-            C[(i1 + 1) * n + j1] = C_1_0;
-            C[(i1 + 1) * n + (j1 + 1)] = C_1_1;
-            C[(i1 + 1) * n + (j1 + 2)] = C_1_2;    
-            C[(i1 + 2) * n + j1] = C_2_0;
-            C[(i1 + 2) * n + (j1 + 1)] = C_2_1;
-            C[(i1 + 2) * n + (j1 + 2)] = C_2_2;
+*/
+            C[in1 + j1] = C_0_0;
+            C[in1 + j2] = C_0_1;
+            C[in1 + j3] = C_0_2;
+            C[in2 + j1] = C_1_0;
+            C[in2 + j2] = C_1_1;
+            C[in2 + j3] = C_1_2;    
+            C[in3 + j1] = C_2_0;
+            C[in3 + j2] = C_2_1;
+            C[in3 + j3] = C_2_2;
         }
     }
     return;
@@ -326,13 +333,15 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
  **/
 int mydgetrf_block(double *A, int *ipiv, int n, int b) 
 {
-    int ib, i, j, k, maxIndex;
+    int ib, ib2, i, n1, j, k, maxIndex;
     double max, sum;
     double *temprow = (double *) malloc(sizeof(double) * n);
 
     for (ib = 0; ib < n; ib += b)
     {
-        for (i = ib; i < ib + b && i < n; i++)
+	ib2 = ib + b;    
+	n1 = ib2 > n ? n : ib2;   
+        for (i = ib; i < n1; i++)
         {
             // pivoting
             maxIndex = i;
@@ -372,8 +381,8 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
             for (j = i + 1; j < n; j++)
             {
                 A[j * n + i] = A[j * n + i] / A[i * n + i];
-                
-                for (k = i + 1; k < ib + b && k < n; k++)
+                  
+                for (k = i + 1; k < n1; k++)
                 {
                     A[j * n + k] -= A[j * n + i] * A[i * n + k];
                 }
@@ -381,9 +390,9 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
         }
 
         // update A(ib:end, end+1:n)
-        for (i = ib; i < ib + b && i < n; i++)
+        for (i = ib; i < n1; i++)
         {
-            for (j = ib + b; j < n; j++)
+            for (j = ib2; j < n; j++)
             {
                 sum = 0;
                 for (k = ib; k < i; k++)
@@ -395,9 +404,9 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
         }
 
         // update A(end+1:n, end+1:n)
-        for (i = ib + b; i < n; i += b)
+        for (i = ib2; i < n; i += b)
         {
-            for (j = ib + b; j < n; j += b)
+            for (j = ib2; j < n; j += b)
             {
                 mydgemm(A, A, A, n, i, j, ib, b);
             }
