@@ -117,6 +117,7 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv)
     
     if (UPLO == 'L')
     {
+	// Ly = b, forward subtitution    
         for (i = 0; i < n; i++)
         {
             tmp_B[i] = B[ipiv[i]];
@@ -134,6 +135,7 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv)
     }
     else if (UPLO == 'U')
     {
+	// Ux = y, backward subtitution     
         for (i = n - 1; i >= 0; i--)
         {
             sum = 0;
