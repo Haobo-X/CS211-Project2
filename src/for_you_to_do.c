@@ -256,7 +256,7 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b)
     // used for swapping rows	
     register double *temprow = (double *) malloc(size_n);
 
-    // finishing LU factorization		
+    // finish LU factorization		
     for (ib = 0; ib < n; ib += b)
     {
 	ib2 = ib + b;    
